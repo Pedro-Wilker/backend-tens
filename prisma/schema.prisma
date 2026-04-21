@@ -1,0 +1,137 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "rhel-openssl-1.1.x"]
+}
+
+model User {
+  id           Int          @id @default(autoincrement())
+  name         String
+  email        String       @unique
+  number       String       @unique
+  passwordHash String
+  role         Role         @default(CLIENT)
+  analfabeto   Boolean      @default(false)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  comments     Comment[]
+  ratings      Rating[]
+  services     Service[]
+  subcomments  Subcomment[]
+
+  @@map("users")
+}
+
+model Category {
+  id            Int           @id @default(autoincrement())
+  name          String        @unique
+  imageUrl      String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  subcategories Subcategory[]
+
+  @@map("categories")
+}
+
+model Subcategory {
+  id         Int       @id @default(autoincrement())
+  name       String
+  categoryId Int
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  services   Service[]
+  category   Category  @relation(fields: [categoryId], references: [id], onDelete: Cascade, map: "subcategories_category_fk")
+
+  @@index([categoryId], map: "subcategories_categoryId_idx")
+  @@map("subcategories")
+}
+
+model Service {
+  id             Int             @id @default(autoincrement())
+  providerId     Int
+  subcategoryId  Int
+  name           String
+  description    String?
+  price          Decimal?        @db.Decimal(10, 2)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  comments       Comment[]
+  ratings        Rating[]
+  serviceDetails ServiceDetail[]
+  provider       User            @relation(fields: [providerId], references: [id], onDelete: Cascade, map: "services_provider_fk")
+  subcategory    Subcategory     @relation(fields: [subcategoryId], references: [id], onDelete: Cascade, map: "services_subcategory_fk")
+
+  @@index([providerId], map: "services_providerId_idx")
+  @@index([subcategoryId], map: "services_subcategoryId_idx")
+  @@map("services")
+}
+
+model ServiceDetail {
+  id          Int      @id @default(autoincrement())
+  serviceId   Int
+  photoUrl    String
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  service     Service  @relation(fields: [serviceId], references: [id], onDelete: Cascade, map: "service_details_service_fk")
+
+  @@index([serviceId], map: "service_details_serviceId_idx")
+  @@map("service_details")
+}
+
+model Comment {
+  id          Int          @id @default(autoincrement())
+  serviceId   Int
+  userId      Int
+  text        String
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  service     Service      @relation(fields: [serviceId], references: [id], onDelete: Cascade, map: "comments_service_fk")
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade, map: "comments_user_fk")
+  subcomments Subcomment[]
+
+  @@index([serviceId], map: "comments_serviceId_idx")
+  @@index([userId], map: "comments_userId_idx")
+  @@map("comments")
+}
+
+model Subcomment {
+  id        Int      @id @default(autoincrement())
+  commentId Int
+  userId    Int
+  text      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  comment   Comment  @relation(fields: [commentId], references: [id], onDelete: Cascade, map: "subcomments_comment_fk")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade, map: "subcomments_user_fk")
+
+  @@index([commentId], map: "subcomments_commentId_idx")
+  @@index([userId], map: "subcomments_userId_idx")
+  @@map("subcomments")
+}
+
+model Rating {
+  id        Int      @id @default(autoincrement())
+  serviceId Int
+  userId    Int
+  rating    Int
+  createdAt DateTime @default(now())
+  service   Service  @relation(fields: [serviceId], references: [id], onDelete: Cascade, map: "ratings_service_fk")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade, map: "ratings_user_fk")
+
+  @@index([serviceId], map: "ratings_serviceId_idx")
+  @@index([userId], map: "ratings_userId_idx")
+  @@map("ratings")
+}
+
+enum Role {
+  PROVIDER
+  CLIENT
+  ADMIN
+  SUPPORT
+  PROVIDERAWAIT
+}
