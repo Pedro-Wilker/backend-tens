@@ -1,10 +1,14 @@
 import { Request, Response } from 'express';
 import { SubcommentService } from '../../services/subcomment/SubcommentService';
 
+interface AuthRequest extends Request {
+  user_id?: string;
+}
+
 export class SubcommentController {
   private subcommentService = new SubcommentService();
 
-  async create(req: Request, res: Response) {
+  async create(req: AuthRequest, res: Response) {
     const commentId = Number(req.params.commentId);
     const { text } = req.body;
     const userId = Number(req.user_id);
@@ -30,7 +34,7 @@ export class SubcommentController {
     }
   }
 
-  async update(req: Request, res: Response) {
+  async update(req: AuthRequest, res: Response) {
     const subcommentId = Number(req.params.subcommentId);
     const { text } = req.body;
     const userId = Number(req.user_id);
@@ -45,7 +49,7 @@ export class SubcommentController {
     }
   }
 
-  async delete(req: Request, res: Response) {
+  async delete(req: AuthRequest, res: Response) {
     const subcommentId = Number(req.params.subcommentId);
     const userId = Number(req.user_id);
 
