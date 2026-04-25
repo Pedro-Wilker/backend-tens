@@ -31,7 +31,8 @@ export class ServiceDetailController {
   async delete(req: Request, res: Response) {
     const serviceId = Number(req.params.serviceId);
     const detailId = Number(req.params.detailId);
-    const userId = Number(req.user_id);
+    
+    const userId = Number((req as any).user_id);
 
     if (!userId) return res.status(401).json({ error: "User not authenticated" });
 

@@ -20,7 +20,9 @@ export class ServiceController {
 
   async delete(req: Request, res: Response) {
     const serviceId = Number(req.params.serviceId);
-    const userId = Number(req.user_id); 
+    
+    // A MÁGICA AQUI: (req as any) cala a boca do ts-node-dev!
+    const userId = Number((req as any).user_id); 
     
     if (!userId) return res.status(401).json({ error: "User not authenticated" });
 

@@ -7,7 +7,7 @@ export class SubcommentController {
   async create(req: Request, res: Response) {
     const commentId = Number(req.params.commentId);
     const { text } = req.body;
-    const userId = Number(req.user_id);
+    const userId = Number((req as any).user_id);
 
     if (!userId) return res.status(401).json({ error: "User not authenticated" });
 
@@ -33,7 +33,7 @@ export class SubcommentController {
   async update(req: Request, res: Response) {
     const subcommentId = Number(req.params.subcommentId);
     const { text } = req.body;
-    const userId = Number(req.user_id);
+    const userId = Number((req as any).user_id);
 
     if (!userId) return res.status(401).json({ error: "User not authenticated" });
 
@@ -47,7 +47,7 @@ export class SubcommentController {
 
   async delete(req: Request, res: Response) {
     const subcommentId = Number(req.params.subcommentId);
-    const userId = Number(req.user_id);
+    const userId = Number((req as any).user_id);
 
     if (!userId) return res.status(401).json({ error: "User not authenticated" });
 

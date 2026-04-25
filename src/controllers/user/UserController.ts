@@ -2,10 +2,6 @@ import { Request, Response } from 'express';
 import { UserService } from '../../services/user/UserService';
 import { Role } from '@prisma/client';
 
-interface AuthRequest extends Request {
-    user_id?: string;
-}
-
 export class UserController {
   private userService = new UserService();
 
@@ -15,9 +11,10 @@ export class UserController {
     return res.status(201).json(user);
   }
 
-  async delete(req: AuthRequest, res: Response) {
+  async delete(req: Request, res: Response) {
     const userId = Number(req.params.userId);
-    const currentUserId = Number(req.user_id);
+    const currentUserId = Number((req as any).user_id);
+    
     if (!currentUserId) return res.status(401).json({ error: "User not authenticated" });
 
     const result = await this.userService.delete({ userId, currentUserId });
@@ -30,21 +27,27 @@ export class UserController {
     return res.json(auth);
   }
 
-  async detail(req: AuthRequest, res: Response) {
-    const userId = Number(req.user_id);
+  async detail(req: Request, res: Response) {
+    const userId = Number((req as any).user_id);
+    
+    if (!userId) return res.status(401).json({ error: "User not authenticated" });
+
     const user = await this.userService.detail(userId);
     return res.json(user);
   }
 
-  async getDetailedProfile(req: AuthRequest, res: Response) {
-    const userId = Number(req.user_id);
+  async getDetailedProfile(req: Request, res: Response) {
+    const userId = Number((req as any).user_id);
+    
+    if (!userId) return res.status(401).json({ error: "User not authenticated" });
+
     const user = await this.userService.getDetailedProfile(userId);
     return res.json(user);
   }
 
-  async update(req: AuthRequest, res: Response) {
+  async update(req: Request, res: Response) {
     const userId = Number(req.params.userId);
-    const currentUserId = Number(req.user_id);
+    const currentUserId = Number((req as any).user_id);
     const { name, email, number, password, role } = req.body;
 
     if (!currentUserId) return res.status(401).json({ error: "User not authenticated" });
@@ -56,10 +59,12 @@ export class UserController {
   }
 
   async requestProviderRole(req: Request, res: Response) {
-    const { userId, roleSelection } = req.body;
-    if (!userId || isNaN(Number(userId))) return res.status(400).json({ error: 'Invalid User ID' });
+    const userId = Number((req as any).user_id);
+    const { roleSelection } = req.body;
+    
+    if (!userId) return res.status(401).json({ error: "User not authenticated" });
 
-    const user = await this.userService.requestProviderRole({ userId: Number(userId), roleSelection });
+    const user = await this.userService.requestProviderRole({ userId, roleSelection });
     return res.status(200).json(user);
   }
 
