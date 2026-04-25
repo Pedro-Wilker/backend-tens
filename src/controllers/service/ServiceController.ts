@@ -1,10 +1,6 @@
 import { Request, Response } from 'express';
 import { ServiceService } from '../../services/service/ServiceService';
 
-interface AuthRequest extends Request {
-  user_id?: string;
-}
-
 export class ServiceController {
   private serviceService = new ServiceService();
 
@@ -22,7 +18,7 @@ export class ServiceController {
     }
   }
 
-  async delete(req: AuthRequest, res: Response) {
+  async delete(req: Request, res: Response) {
     const serviceId = Number(req.params.serviceId);
     const userId = Number(req.user_id); 
     

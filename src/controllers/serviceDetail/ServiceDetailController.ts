@@ -2,17 +2,13 @@ import { Request, Response } from 'express';
 import { ServiceDetailService } from '../../services/serviceDetail/ServiceDetailService';
 import 'multer';
 
-interface AuthRequest extends Request {
-  user_id?: string;
-}
-
 export class ServiceDetailController {
   private serviceDetailService = new ServiceDetailService();
 
   async create(req: Request, res: Response) {
     const serviceId = Number(req.body.serviceId);
     const description = req.body.description || "";
-   
+    
     const files = req.files as Express.Multer.File[];
 
     if (!files || files.length === 0) {
@@ -32,7 +28,7 @@ export class ServiceDetailController {
     }
   }
 
-  async delete(req: AuthRequest, res: Response) {
+  async delete(req: Request, res: Response) {
     const serviceId = Number(req.params.serviceId);
     const detailId = Number(req.params.detailId);
     const userId = Number(req.user_id);

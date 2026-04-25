@@ -1,16 +1,12 @@
 import { Request, Response } from 'express';
 import { CommentService } from '../../services/comment/CommentService';
 
-interface AuthRequest extends Request {
-  user_id?: string;
-}
-
 export class CommentController {
   private commentService = new CommentService();
 
-  async create(req: AuthRequest, res: Response) {
+  async create(req: Request, res: Response) {
     const { serviceId, text } = req.body;
-    const userId = Number(req.user_id);
+    const userId = Number(req.user_id); 
 
     if (!userId) return res.status(401).json({ error: 'User not authenticated' });
 
@@ -33,7 +29,7 @@ export class CommentController {
     }
   }
 
-  async update(req: AuthRequest, res: Response) {
+  async update(req: Request, res: Response) {
     const commentId = Number(req.params.commentId);
     const { text } = req.body;
     const userId = Number(req.user_id);
@@ -48,7 +44,7 @@ export class CommentController {
     }
   }
 
-  async delete(req: AuthRequest, res: Response) {
+  async delete(req: Request, res: Response) {
     const commentId = Number(req.params.commentId);
     const userId = Number(req.user_id);
 
