@@ -16,14 +16,15 @@ const isProduction = process.env.NODE_ENV === "production";
 
 app.use(express.json());
 app.use(cookieParser());
+
 app.use(helmet({
-    crossOriginResourcePolicy: false, 
+    crossOriginResourcePolicy: { policy: "cross-origin" }
 }));
 
+const envOrigins = process.env.FRONTEND_URLS ? process.env.FRONTEND_URLS.split(',') : [];
 const allowedOrigins = [
     "http://localhost:3000",
-    process.env.FRONTEND_URL as string,
-    "https://vossa-app-na-vercel.app" 
+    ...envOrigins
 ].filter(Boolean);
 
 app.use(cors({
@@ -41,7 +42,6 @@ app.use(cors({
 }));
 
 const uploadDir = process.env.UPLOAD_DIR || path.resolve(__dirname, "..", "uploads");
-
 app.use("/uploads", express.static(uploadDir));
 
 app.use('/v1', router);
